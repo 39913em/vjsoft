@@ -1,0 +1,5 @@
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; overflow: hidden; background: #000; color: #e4e4e7;
+  font-family: 'Segoe UI', system-ui, monospace; }
+#view { position: absolute; inset: 0; }
+#view canvas { position: absolute; top: 0; left: 0; display: block; }

@@ -1,0 +1,7 @@
+body.output-mode #view { position: fixed; inset: 0; }
+body.output-mode::after {
+  content: 'Click para pantalla completa · ESC para salir';
+  position: fixed; bottom: 8px; left: 50%; transform: translateX(-50%);
+  font-size: 10px; color: rgba(255,255,255,.25); pointer-events: none;
+  transition: opacity .4s; z-index: 100;
+}

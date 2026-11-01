@@ -1,0 +1,20 @@
+aside {
+  position: absolute; top: 12px;
+  background: rgba(8,8,12,0.94);
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 10px; padding: 12px;
+  z-index: 10;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+}
+body.glass aside { backdrop-filter: blur(12px); background: rgba(8,8,12,0.90); }
+#deck { left: 12px; width: 280px; max-height: calc(100vh - 24px); overflow-y: auto; }
+#deck::-webkit-scrollbar { width: 5px; }
+#deck::-webkit-scrollbar-thumb { background: #27272a; border-radius: 3px; }
+#master { right: 12px; width: 310px; max-height: calc(100vh - 24px); overflow-y: auto; }
+#master::-webkit-scrollbar { width: 5px; }
+#master::-webkit-scrollbar-thumb { background: #27272a; border-radius: 3px; }
+
+.section-title { font-size: 9px; letter-spacing: 2px; color: #71717a;
+  text-transform: uppercase; margin: 14px 0 8px; font-weight: 700;
+  display: flex; justify-content: space-between; align-items: center; }
+.section-title:first-child { margin-top: 0; }
