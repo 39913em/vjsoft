@@ -5,14 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>VJ CONSOLE — Objetos Digitales</title>
 
-<!-- ESTILOS -->
 <link rel="stylesheet" href="css/base.css">
 <link rel="stylesheet" href="css/panels.css">
 <link rel="stylesheet" href="css/deck.css">
 <link rel="stylesheet" href="css/controls.css">
 <link rel="stylesheet" href="css/output.css">
 
-<!-- LIBRERÍAS (three.js r128) -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/DRACOLoader.js"></script>
@@ -21,10 +19,8 @@
 <body>
 
 
-<!-- ═══ LIENZO 3D ═══ -->
 <div id="view"></div>
 
-<!-- ═══ PANEL IZQUIERDO · DECK (capas, clips, salida) ═══ -->
 <aside id="deck">
   <div class="section-title">Capa activa</div>
   <div class="layers">
@@ -65,7 +61,6 @@
   <div class="note">Click en la ventana de salida para pantalla completa. También funciona F11.</div>
 </aside>
 
-<!-- ═══ PANEL DERECHO · MASTER (mezcla, parámetros, efectos, reactividad, auto) ═══ -->
 <aside id="master">
   <div class="section-title">Mezcla</div>
   <div class="row2">
@@ -163,11 +158,9 @@
   <div class="note">Se edita en la ventana de salida (haz clic en ella): M abre/cierra · 1 esquinas · 2 malla · 3 máscara · P patrón · R reinicia el modo. Esquinas = perspectiva; malla = superficies curvas; máscara = recorta el contorno.</div>
 </aside>
 
-<!-- ═══ 1 · CONFIG Y UTILIDADES ═══ -->
 <script src="js/config.js"></script>
 <script src="js/utils/rng.js"></script>
 
-<!-- ═══ 2 · MOTOR (shaders, estado, render, capas) ═══ -->
 <script src="js/engine/shaders.js"></script>
 <script src="js/engine/state.js"></script>
 <script src="js/engine/materials.js"></script>
@@ -180,10 +173,8 @@
 <script src="js/engine/mapping.js"></script>
 <script src="js/engine/quality.js"></script>
 
-<!-- ═══ 3 · SISTEMA DE CLIPS ═══ -->
 <script src="js/clips/registry.js"></script>
 <script src="js/clips/helpers.js"></script>
-<!-- 3a · Clips incluidos (el orden define la numeración del deck) -->
 <script src="clips/builtin/01-catrina.js"></script>
 <script src="clips/builtin/02-hilos.js"></script>
 <script src="clips/builtin/03-desintegracion.js"></script>
@@ -196,23 +187,17 @@
 <script src="clips/builtin/10-red-biometrica.js"></script>
 <script src="clips/builtin/11-cosmos.js"></script>
 <script src="clips/builtin/12-betta.js"></script>
-<!-- 3b · Tus clips (carpeta clips/custom/) — los gestiona tools/sync-clips.js -->
-<!-- CLIPS:START (no borres estos marcadores) -->
-<!-- CLIPS:END -->
-<!-- 3c · Vídeos (carpeta clips/videos/) -->
+
 <script src="clips/videos/videos.js"></script>
 <script src="js/clips/video-clip.js"></script>
-<!-- 3d · Modelos 3D (carpeta clips/models/) -->
 <script src="clips/models/models.js"></script>
 <script src="js/clips/model-clip.js"></script>
 <script src="js/app/media-library.js"></script>
 
-<!-- ═══ 4 · INTERFAZ (paneles) ═══ -->
 <script src="js/ui/deck.js"></script>
 <script src="js/ui/param-controls.js"></script>
 <script src="js/ui/master-controls.js"></script>
 
-<!-- ═══ 5 · APLICACIÓN (arranque y modos) ═══ -->
 <script src="clips/scenes/scenes.js"></script>
 <script src="js/app/camera-controls.js"></script>
 <script src="js/app/reactivity.js"></script>
