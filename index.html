@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VJ CONSOLE — Objetos Digitales</title>
+
+<!-- ESTILOS -->
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/panels.css">
+<link rel="stylesheet" href="css/deck.css">
+<link rel="stylesheet" href="css/controls.css">
+<link rel="stylesheet" href="css/output.css">
+
+<!-- LIBRERÍAS (three.js r128) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/DRACOLoader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+</head>
+<body>
+
+
+<!-- ═══ LIENZO 3D ═══ -->
+<div id="view"></div>
+
+<!-- ═══ PANEL IZQUIERDO · DECK (capas, clips, salida) ═══ -->
+<aside id="deck">
+  <div class="section-title">Capa activa</div>
+  <div class="layers">
+    <button class="ltab active" data-layer="A">A</button>
+    <button class="ltab" data-layer="B">B</button>
+  </div>
+
+  <div class="xf-wrap">
+    <span class="xf-label a">A</span>
+    <input type="range" id="crossfade" min="0" max="1" step="0.01" value="0">
+    <span class="xf-label b">B</span>
+  </div>
+
+  <div class="section-title">Clips <span class="param-val" id="xf-val">0%</span></div>
+  <div id="clip-grid" class="clip-grid"></div>
+  <div id="status">Cargando cabeza 3D…</div>
+  <button id="btn-media-add" class="mini" style="margin-top:6px">Añadir modelos .glb / vídeos…</button>
+  <input type="file" id="media-file" multiple accept=".glb,.mp4,.webm,.ogv,.m4v,.mov,video/*" hidden>
+  <div class="note">También puedes arrastrar los archivos a la ventana. Se guardan en este navegador.</div>
+
+  <div class="section-title">Escenas</div>
+  <div id="scene-grid" class="clip-grid"></div>
+  <div class="row2" style="margin-top:6px">
+    <button id="btn-scene-save" class="mini">Guardar escena</button>
+    <button id="btn-scene-export" class="mini">Exportar</button>
+  </div>
+  <button id="btn-scene-import" class="mini" style="margin-top:5px">Importar escenas…</button>
+  <input type="file" id="scene-file" accept=".json,application/json" hidden>
+  <div class="note">Una escena guarda clips, parámetros, giros, efectos, mezcla, BPM y cámara de A y B.</div>
+
+  <div class="section-title">Salida</div>
+  <button id="btn-open-output" class="wide-btn">Abrir pantalla de salida</button>
+  <button id="btn-take" class="wide-btn take">Enviar a salida →</button>
+  <div id="monitor-wrap">
+    <div class="monitor-label">RETORNO · PANTALLA DE SALIDA</div>
+    <img id="monitor-img" alt="">
+  </div>
+  <div class="note">Click en la ventana de salida para pantalla completa. También funciona F11.</div>
+</aside>
+
+<!-- ═══ PANEL DERECHO · MASTER (mezcla, parámetros, efectos, reactividad, auto) ═══ -->
+<aside id="master">
+  <div class="section-title">Mezcla</div>
+  <div class="row2">
+    <div class="param-row">
+      <div class="param-head"><span class="param-label">Opacidad A</span></div>
+      <input type="range" id="opA" min="0" max="1" step="0.01" value="1">
+    </div>
+    <div class="param-row">
+      <div class="param-head"><span class="param-label">Opacidad B</span></div>
+      <input type="range" id="opB" min="0" max="1" step="0.01" value="1">
+    </div>
+  </div>
+  <div class="param-row">
+    <div class="param-head"><span class="param-label">Modo de mezcla</span></div>
+    <select id="blend">
+      <option value="normal">Normal</option>
+      <option value="screen" selected>Screen</option>
+      <option value="lighten">Lighten</option>
+      <option value="overlay">Overlay</option>
+      <option value="difference">Difference</option>
+      <option value="exclusion">Exclusion</option>
+    </select>
+  </div>
+  <div class="param-row">
+    <div class="param-head"><span class="param-label">Duración transición</span><span class="param-val" id="td-val">600ms</span></div>
+    <input type="range" id="transitionDur" min="0" max="2000" step="50" value="600">
+  </div>
+
+  <div class="section-title">Parámetros de capa</div>
+  <div id="param-controls"></div>
+  <button id="btn-rot-reset" class="mini">Reiniciar giro</button>
+  <div class="note">Giro: el signo invierte el sentido. X: + arriba→abajo, − abajo→arriba · Y: + izquierda→derecha, − derecha→izquierda · Z: + antihorario, − horario. Requiere "Giro automático". Doble clic en un slider lo devuelve a su valor inicial.</div>
+
+  <div class="section-title">Efectos</div>
+  <div id="effect-controls"></div>
+
+  <div class="section-title">Reactividad</div>
+  <div class="row2">
+    <button id="btn-mic" class="mini">Micrófono</button>
+    <button id="btn-cam" class="mini">Cámara</button>
+  </div>
+  <div class="param-row" style="margin-top:8px">
+    <div class="param-head"><span class="param-label">Ganancia audio</span><span class="param-val" id="ag-val">1.0</span></div>
+    <input type="range" id="audioGain" min="0" max="3" step="0.01" value="1">
+  </div>
+  <div class="param-row">
+    <div class="param-head"><span class="param-label">Ganancia movimiento</span><span class="param-val" id="vg-val">1.0</span></div>
+    <input type="range" id="videoGain" min="0" max="3" step="0.01" value="1">
+  </div>
+  <div class="param-row">
+    <div class="param-head"><span class="param-label">BPM</span><span class="param-val" id="bpm-val">120</span></div>
+    <input type="range" id="bpm" min="60" max="180" step="1" value="120">
+  </div>
+  <div class="param-row">
+    <div class="param-head"><span class="param-label">Giro automático</span></div>
+    <input type="checkbox" id="autorot" checked style="accent-color:#22d3ee;width:16px;height:16px;cursor:pointer">
+  </div>
+
+  <div class="section-title">Modo automático</div>
+  <button id="btn-auto" class="mini">Auto VJ — OFF</button>
+  <div class="note">Auto VJ entra y sale con una rampa suave y nunca cambia tus valores: al apagarlo vuelves a tu configuración manual. Cada compás cambia la capa oculta, desliza el crossfader hacia ella y rota los efectos.</div>
+
+  <div class="section-title">Rendimiento</div>
+  <div class="param-row">
+    <div class="param-head"><span class="param-label">Calidad vista previa</span><span class="param-val" id="fps-main"></span></div>
+    <select id="q-preview">
+      <option value="auto">Auto</option><option value="1">100%</option><option value="0.75">75%</option>
+      <option value="0.5">50%</option><option value="0.35">35%</option>
+    </select>
+  </div>
+  <div class="param-row">
+    <div class="param-head"><span class="param-label">Calidad salida</span><span class="param-val" id="fps-out"></span></div>
+    <select id="q-output">
+      <option value="auto">Auto</option><option value="1">100%</option><option value="0.75">75%</option>
+      <option value="0.5">50%</option><option value="0.35">35%</option>
+    </select>
+  </div>
+  <label class="chk"><input type="checkbox" id="chk-glass"> Efecto cristal en paneles (más bonito, más pesado)</label>
+  <div class="note">Por defecto 100 % (máxima nitidez). Auto baja la resolución sola si la imagen va lenta (nunca por debajo del 60 %). Menos % = más fluidez pero líneas más gruesas. La vista previa puede ir más baja sin afectar a la salida.</div>
+
+  <div class="section-title">Mapping (salida)</div>
+  <div class="row2">
+    <button id="btn-map-on" class="mini">Mapping — OFF</button>
+    <button id="btn-map-edit" class="mini">Editar en salida</button>
+  </div>
+  <div class="row2" style="margin-top:5px">
+    <button id="btn-map-pattern" class="mini">Patrón — OFF</button>
+    <button id="btn-map-reset" class="mini">Restablecer</button>
+  </div>
+  <div class="row2" style="margin-top:5px">
+    <button id="btn-map-export" class="mini">Exportar</button>
+    <button id="btn-map-import" class="mini">Importar…</button>
+  </div>
+  <input type="file" id="map-file" accept=".json,application/json" hidden>
+  <div class="note">Se edita en la ventana de salida (haz clic en ella): M abre/cierra · 1 esquinas · 2 malla · 3 máscara · P patrón · R reinicia el modo. Esquinas = perspectiva; malla = superficies curvas; máscara = recorta el contorno.</div>
+</aside>
+
+<!-- ═══ 1 · CONFIG Y UTILIDADES ═══ -->
+<script src="js/config.js"></script>
+<script src="js/utils/rng.js"></script>
+
+<!-- ═══ 2 · MOTOR (shaders, estado, render, capas) ═══ -->
+<script src="js/engine/shaders.js"></script>
+<script src="js/engine/state.js"></script>
+<script src="js/engine/materials.js"></script>
+<script src="js/engine/head.js"></script>
+<script src="js/engine/gl-helpers.js"></script>
+<script src="js/engine/core.js"></script>
+<script src="js/engine/layers.js"></script>
+<script src="js/engine/render.js"></script>
+<script src="js/engine/transitions.js"></script>
+<script src="js/engine/mapping.js"></script>
+<script src="js/engine/quality.js"></script>
+
+<!-- ═══ 3 · SISTEMA DE CLIPS ═══ -->
+<script src="js/clips/registry.js"></script>
+<script src="js/clips/helpers.js"></script>
+<!-- 3a · Clips incluidos (el orden define la numeración del deck) -->
+<script src="clips/builtin/01-catrina.js"></script>
+<script src="clips/builtin/02-hilos.js"></script>
+<script src="clips/builtin/03-desintegracion.js"></script>
+<script src="clips/builtin/04-mexica.js"></script>
+<script src="clips/builtin/05-malla-base.js"></script>
+<script src="clips/builtin/06-monolito.js"></script>
+<script src="clips/builtin/07-topografia.js"></script>
+<script src="clips/builtin/08-nudo-toroidal.js"></script>
+<script src="clips/builtin/09-esfera.js"></script>
+<script src="clips/builtin/10-red-biometrica.js"></script>
+<script src="clips/builtin/11-cosmos.js"></script>
+<script src="clips/builtin/12-betta.js"></script>
+<!-- 3b · Tus clips (carpeta clips/custom/) — los gestiona tools/sync-clips.js -->
+<!-- CLIPS:START (no borres estos marcadores) -->
+<!-- CLIPS:END -->
+<!-- 3c · Vídeos (carpeta clips/videos/) -->
+<script src="clips/videos/videos.js"></script>
+<script src="js/clips/video-clip.js"></script>
+<!-- 3d · Modelos 3D (carpeta clips/models/) -->
+<script src="clips/models/models.js"></script>
+<script src="js/clips/model-clip.js"></script>
+<script src="js/app/media-library.js"></script>
+
+<!-- ═══ 4 · INTERFAZ (paneles) ═══ -->
+<script src="js/ui/deck.js"></script>
+<script src="js/ui/param-controls.js"></script>
+<script src="js/ui/master-controls.js"></script>
+
+<!-- ═══ 5 · APLICACIÓN (arranque y modos) ═══ -->
+<script src="clips/scenes/scenes.js"></script>
+<script src="js/app/camera-controls.js"></script>
+<script src="js/app/reactivity.js"></script>
+<script src="js/app/auto-vj.js"></script>
+<script src="js/app/output-link.js"></script>
+<script src="js/app/rotation-tools.js"></script>
+<script src="js/app/scenes.js"></script>
+<script src="js/app/mapping-link.js"></script>
+<script src="js/app/quality-link.js"></script>
+<script src="js/app/main-loop.js"></script>
+<script src="js/app/main.js"></script>
+<script src="js/app/output-mapping.js"></script>
+<script src="js/app/output-mode.js"></script>
+<script src="js/app/boot.js"></script>
+<div id="drop-hint">Suelta aquí tus modelos .glb y vídeos</div>
+</body>
+</html>
