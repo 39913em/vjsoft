@@ -1,4 +1,9 @@
-
+/* ============================================================
+   ENGINE · render por frame
+   Pasada por capa con FX y transición, y composición final A/B.
+   Usa:      core.js, layers.js, materials.js
+   Aporta:   renderFrame(), renderLayerWithFX(), blendIndex(), clamp01()
+   ============================================================ */
 'use strict';
 
 function blendIndex(name) {
@@ -64,11 +69,12 @@ function renderLayerWithFX(core, layer, which, eff, now) {
   fxU.uVignette.value   = clamp01(e.vignette[d]);
   fxU.uGrain.value      = clamp01(e.grain[d] + eff._audio * eff.audioGain * 0.15);
 
+  // Con todos los efectos a 0 el shader es la identidad: se salta la pasada y se usa la imagen tal cual
   const anyFx = window.VJ_FORCE_FX || [fxU.uRepetition, fxU.uTunnel, fxU.uGlitch, fxU.uAberration, fxU.uBorders,
     fxU.uFluids, fxU.uFractal, fxU.uPixelate, fxU.uMirror, fxU.uZoom, fxU.uPosterize, fxU.uScan,
     fxU.uInvert, fxU.uVignette, fxU.uGrain].some(u => u.value > 0.001);
   if (anyFx) {
-    if (!layer.fxWas) fxU.uPrev.value = sourceRT.texture;  
+    if (!layer.fxWas) fxU.uPrev.value = sourceRT.texture;   // evita mezclar con un cuadro viejo al encender
     core.renderer.setRenderTarget(fxBuf);
     core.renderer.render(fxScene, core.orthoCam);
 
@@ -85,6 +91,7 @@ function renderFrame(core, eff, dt, now) {
   applyMatsToLayer(core.matsA, { colPrimary: eff.colPrimary.A, colAccent: eff.colAccent.A, opacity: eff.opacity.A });
   applyMatsToLayer(core.matsB, { colPrimary: eff.colPrimary.B, colAccent: eff.colAccent.B, opacity: eff.opacity.B });
 
+  // Una capa que no se ve (crossfader al extremo u opacidad 0) no se actualiza ni se dibuja
   const showA = eff.crossfade < 0.999 && eff.opA > 0.001;
   const showB = eff.crossfade > 0.001 && eff.opB > 0.001;
   const clipA = showA && core.layerA.active ? core.layerA.clips[core.layerA.active] : null;

@@ -1,7 +1,12 @@
-
+/* ============================================================
+   ENGINE · shaders GLSL
+   Vértice común, composición A/B, efectos y mezcla de transición.
+   ============================================================ */
 'use strict';
 
-
+/* =========================================================
+   SHADERS
+   ========================================================= */
 const VERT = `varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position.xy,0.0,1.0); }`;
 
 const COMP_FRAG = `
@@ -122,6 +127,7 @@ const LERP_FRAG = `
   void main(){ gl_FragColor = mix(texture2D(uFrom, vUv), texture2D(uTo, vUv), uT); }
 `;
 
+/* Pasada de mapping: dibuja la imagen final sobre una malla deformada y la recorta con la máscara */
 const MAP_FRAG = `
   precision highp float;
   varying vec2 vUv;

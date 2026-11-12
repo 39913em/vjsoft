@@ -1,4 +1,10 @@
-                                           */
+#!/usr/bin/env node
+/* Sincroniza las carpetas de clips con el proyecto (sin dependencias, solo Node).
+     clips/custom/*.js      → líneas <script> entre CLIPS:START y CLIPS:END en index.html
+     clips/videos/*.{mp4…}  → lista VIDEO_FILES en clips/videos/videos.js
+     clips/models/*.glb     → lista MODEL_FILES en clips/models/models.js
+     clips/scenes/*.json    → presets de escenas en clips/scenes/scenes.js
+   Uso:  node tools/sync-clips.js                                              */
 const fs = require('fs');
 const path = require('path');
 
@@ -9,6 +15,7 @@ const indexFile = path.join(root, 'index.html');
 const videoList = path.join(videoDir, 'videos.js');
 const VIDEO_EXT = /\.(mp4|webm|ogv|m4v)$/i;
 
+// 1) clips JS propios
 const customs = fs.readdirSync(customDir)
   .filter(f => f.endsWith('.js') && !f.startsWith('_'))
   .sort();
@@ -20,6 +27,7 @@ if (!re.test(html)) { console.error('No encuentro los marcadores CLIPS:START / C
 html = html.replace(re, (m, a, b) => a + '\n' + (block ? block + '\n' : '') + b);
 fs.writeFileSync(indexFile, html);
 
+// 2) vídeos
 const videos = fs.readdirSync(videoDir).filter(f => VIDEO_EXT.test(f)).sort();
 const list = videos.map(f => "  '" + f.replace(/\\/g, '\\\\').replace(/'/g, "\\'") + "',").join('\n');
 fs.writeFileSync(videoList,
@@ -28,6 +36,7 @@ fs.writeFileSync(videoList,
   "'use strict';\n\n" +
   "const VIDEO_FILES = [\n" + (list ? list + '\n' : "  // 'mi-video.mp4',\n") + "];\n");
 
+// 3) modelos .glb
 const modelDir = path.join(root, 'clips', 'models');
 const models = fs.readdirSync(modelDir).filter(f => /\.glb$/i.test(f)).sort();
 const mlist = models.map(f => "  '" + f.replace(/\\/g, '\\\\').replace(/'/g, "\\'") + "',").join('\n');
@@ -37,6 +46,7 @@ fs.writeFileSync(path.join(modelDir, 'models.js'),
   "'use strict';\n\n" +
   "const MODEL_FILES = [\n" + (mlist ? mlist + '\n' : "  // 'mi-modelo.glb',\n") + "];\n");
 
+// 4) escenas (.json exportadas desde la app)
 const sceneDir = path.join(root, 'clips', 'scenes');
 const sceneFiles = fs.readdirSync(sceneDir).filter(f => /\.json$/i.test(f)).sort();
 const scenes = [];

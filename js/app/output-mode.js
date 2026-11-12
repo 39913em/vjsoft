@@ -1,7 +1,14 @@
-
+/* ============================================================
+   APP · modo salida (ventana de proyección)
+   Se ejecuta en la ventana "vjout": recibe estados por postMessage y renderiza a pantalla completa.
+   Usa:      engine/*, clips
+   Aporta:   initOutput()
+   ============================================================ */
 'use strict';
 
-
+/* =========================================================
+   MODO SALIDA
+   ========================================================= */
 function initOutput() {
   document.body.classList.add('output-mode');
   document.body.innerHTML = '<div id="view"></div>';
@@ -10,7 +17,7 @@ function initOutput() {
 
   const core = buildCore(document.getElementById('view'));
   const outQ = initOutputQuality(core);
-  window.vjOutCore = core;                       
+  window.vjOutCore = core;                       // (útil para depurar)
   installStaticClips(core);
   setActive(core.layerA, 'monolith');
   setActive(core.layerB, 'fondo');
@@ -83,6 +90,7 @@ function initOutput() {
       outAudio = d.audio || 0;
       outMotion = d.motion || 0;
       if (typeof d.timeA === 'number') {
+        // corrección suave (un salto brusco se vería como tirón); si la diferencia es grande, se iguala
         const soft = (cur, tgt) => Math.abs(tgt - cur) > 1 ? tgt : cur + (tgt - cur) * 0.25;
         core.layerA.time = soft(core.layerA.time, d.timeA); core.layerB.time = soft(core.layerB.time, d.timeB);
         core.layerA.root.rotation.y = soft(core.layerA.root.rotation.y, d.rotA);
@@ -143,6 +151,7 @@ function initOutput() {
 
       eff._audio = outAudio; eff._motion = outMotion;
 
+      // velocidades en vivo de la consola (para que girar/parar se note al instante en la salida)
       if (outRates) {
         eff.speed = outRates.speed; eff.rotSpeed = outRates.rotSpeed; eff.rotX = outRates.rotX; eff.rotZ = outRates.rotZ;
         eff.bpm = outRates.bpm; eff.autoRotate = outRates.autoRotate;

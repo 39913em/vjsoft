@@ -1,19 +1,37 @@
-
+/* ============================================================
+   CLIPS · modelos 3D (.glb)
+   Convierte cada archivo de clips/models/ (o añadido desde el deck) en un clip más.
+   Usa:      MODEL_FILES (clips/models/models.js), CLIP_DEFS, wireMesh(), makeGLTFLoader()
+   Aporta:   buildModelClip()
+   ============================================================ */
 'use strict';
 
+/* El modelo se dibuja como malla de alambre (igual que los clips de cabeza), centrado y
+   escalado a ~5 unidades. Responde a:
+     - Color / Opacidad malla / Escala / Giro X-Y-Z → como cualquier clip
+     - Pulsar → latido suave de tamaño
+     - Textura (.glb) → muestra el modelo con sus materiales y texturas originales, con luz propia
+       (Opacidad malla ≥ 0.90 se ve opaco; los metales se ven mates; Deformación no se aplica).
+       "Color modelo" recolorea el resultado conservando su luminosidad (blanco/gris = sin tinte).
+     - Modelo SIN animación: varias mallas se unen en una y "Deformación" ondula la superficie
+     - Modelo CON animación o esqueleto: reproduce la primera animación; su velocidad sigue a
+       Velocidad y BPM (Velocidad 0 la congela). "Deformación" no se aplica a estos.
+   Admite .glb comprimidos con Draco (necesita internet la primera vez para el decodificador). */
 function buildModelClip(src, mats) {
   const group = new THREE.Group();
   group.position.y = -1;
 
+  // El navegador no deja cargar .glb desde file:// (salvo los añadidos con el botón/arrastrando).
   if (location.protocol === 'file:' && src.indexOf('blob:') !== 0) {
     console.warn('[VJ] Los modelos .glb de la carpeta necesitan servidor local; añádelos desde el deck. Mira el README.');
     return { group, update() {} };
   }
 
-  let geo = null, orig = null, ready = false;       
+  let geo = null, orig = null, ready = false;       // ruta estática (deformación)
   let flat = false, defTick = 0;
-  let mixer = null, action = null, wireM = null, lastT = null;  
+  let mixer = null, action = null, wireM = null, lastT = null;   // ruta animada
 
+  // modo con textura: materiales originales + luces propias (solo visibles en ese modo)
   let texOn = false, texList = [], setTextured = () => {};
   const tint = new THREE.Color();
   const lights = new THREE.Group();
@@ -25,7 +43,8 @@ function buildModelClip(src, mats) {
   }
   group.add(lights);
 
- 
+  /* prepara los materiales originales: sin gestión de color (como el resto de la consola) y sin
+     metal puro (no hay mapa de entorno, quedaría negro) */
   function texMaterials(root) {
     const set = new Set();
     root.traverse(c => { if (c.isMesh) [].concat(c.material).forEach(m => set.add(m)); });
@@ -33,6 +52,7 @@ function buildModelClip(src, mats) {
       ['map', 'emissiveMap'].forEach(k => { if (m[k]) { m[k].encoding = THREE.LinearEncoding; m[k].needsUpdate = true; } });
       if (m.metalness > 0.2) m.metalness = 0.2;
       m.userData.vjT = m.transparent;
+      // recoloreado: conserva la luminosidad (detalle/sombras) de la textura y la tiñe del color elegido
       const U = m.userData.vjU = { uVjTint: { value: new THREE.Color(1, 1, 1) }, uVjMix: { value: 0 } };
       m.onBeforeCompile = sh => {
         sh.uniforms.uVjTint = U.uVjTint; sh.uniforms.uVjMix = U.uVjMix;
@@ -44,6 +64,7 @@ function buildModelClip(src, mats) {
     });
     return Array.from(set);
   }
+  /* centra la escena original y la escala a ~5 unidades */
   function makePivot(root) {
     root.updateMatrixWorld(true);
     const box = new THREE.Box3().setFromObject(root);
@@ -77,6 +98,7 @@ function buildModelClip(src, mats) {
       g.dispose();
     });
 
+    // centrar en el origen y escalar a ~5 unidades
     let mnx = Infinity, mny = Infinity, mnz = Infinity, mxx = -Infinity, mxy = -Infinity, mxz = -Infinity;
     for (let i = 0; i < pos.length; i += 3) {
       mnx = Math.min(mnx, pos[i]);     mxx = Math.max(mxx, pos[i]);
@@ -96,6 +118,7 @@ function buildModelClip(src, mats) {
     const wireObj = wireMesh(geo, mats.occ, mats.primary);
     group.add(wireObj);
 
+    // versión con textura: la escena original, intacta
     texList = texMaterials(gltf.scene);
     const texPivot = makePivot(gltf.scene);
     texPivot.visible = false;
@@ -106,6 +129,7 @@ function buildModelClip(src, mats) {
 
   function buildAnimated(gltf, hasSkin, hasMorph) {
     const root = gltf.scene;
+    // materiales propios (con esqueleto/morph activados) que siguen a los de la capa en update()
     texList = texMaterials(root);
     const origMat = new Map();
     root.traverse(c => { if (c.isMesh) origMat.set(c, c.material); });
@@ -136,7 +160,7 @@ function buildModelClip(src, mats) {
       mixer = new THREE.AnimationMixer(root);
       action = mixer.clipAction(gltf.animations[0]);
       action.play();
-      group.userData.mixer = mixer;                   
+      group.userData.mixer = mixer;                    // (útil para depurar)
     }
     ready = true;
   }
@@ -153,7 +177,7 @@ function buildModelClip(src, mats) {
     if (!hasMesh) { console.warn('[VJ] ' + src + ': el archivo no contiene mallas.'); return; }
     if (hasSkin || (gltf.animations && gltf.animations.length)) buildAnimated(gltf, hasSkin, hasMorph);
     else buildStatic(gltf);
-    group.traverse(o => { o.frustumCulled = false; });   
+    group.traverse(o => { o.frustumCulled = false; });   // los hijos se añaden tras la instalación
   }, undefined, err => console.warn('[VJ] No se pudo cargar ' + src + ' (¿falta el archivo o está dañado?)', err));
 
   return { group, update(t, dt, p) {
@@ -164,30 +188,30 @@ function buildModelClip(src, mats) {
     if (texOn) {
       const op = mats.primary.opacity, o = op >= 0.9 ? 1 : op / 0.9;
       tint.set(p.colModel || '#ffffff');
-      const mx = Math.max(tint.r, tint.g, tint.b) || 1, sat = (mx - Math.min(tint.r, tint.g, tint.b)) / mx;   
+      const mx = Math.max(tint.r, tint.g, tint.b) || 1, sat = (mx - Math.min(tint.r, tint.g, tint.b)) / mx;   // blanco/gris = sin tinte
       texList.forEach(m => {
         m.transparent = m.userData.vjT || o < 0.999; m.opacity = o;
         const u = m.userData.vjU;
         u.uVjTint.value.copy(tint).multiplyScalar(1 / mx); u.uVjMix.value = sat;
       });
     }
-    if (wireM) {                                   
+    if (wireM) {                                     // ruta animada
       wireM.color.copy(mats.primary.color);
       wireM.opacity = mats.primary.opacity;
-      if (mixer) {                                    
+      if (mixer) {                                     // t avanza 3 unidades/s a Velocidad 1 y BPM 120
         if (lastT !== null && t > lastT) mixer.update((t - lastT) / 3);
         lastT = t;
       }
       return;
     }
-    if (texOn) return;                               
+    if (texOn) return;                               // con textura no se deforma
     const amp = p.deform * 0.12, pos = geo.attributes.position.array;
-    if (amp < 0.0005) {                              
+    if (amp < 0.0005) {                              // sin deformación: restaurar una vez y no hacer más
       if (!flat) { pos.set(orig); geo.attributes.position.needsUpdate = true; flat = true; }
       return;
     }
     flat = false;
-    if ((defTick++ & 1) === 1) return;             
+    if ((defTick++ & 1) === 1) return;               // la ondulación se recalcula a 30 Hz
     for (let i = 0; i < pos.length; i += 3) {
       const w = 1 + amp * Math.sin(orig[i + 1] * 2.2 + t * 2.0);
       pos[i] = orig[i] * w; pos[i + 1] = orig[i + 1]; pos[i + 2] = orig[i + 2] * w;
@@ -196,6 +220,7 @@ function buildModelClip(src, mats) {
   }};
 }
 
+/* Registro automático: un clip por cada archivo listado en MODEL_FILES */
 MODEL_FILES.forEach((file, i) => {
   const name = file.replace(/\.[^.]+$/, '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   const src = 'clips/models/' + encodeURI(file);

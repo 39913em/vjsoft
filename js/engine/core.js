@@ -1,7 +1,14 @@
-
+/* ============================================================
+   ENGINE · núcleo de render
+   Renderer, cámara, escenas A/B, render targets, pasadas de composición/FX, y resize.
+   Usa:      shaders.js, materials.js, gl-helpers.js
+   Aporta:   buildCore(), onResize()
+   ============================================================ */
 'use strict';
 
-
+/* =========================================================
+   CORE
+   ========================================================= */
 function buildCore(container) {
   const renderer = new THREE.WebGLRenderer({ antialias: false, preserveDrawingBuffer: IS_OUTPUT && !!window.VJ_KEEP_BUFFER });
   const dpr = Math.min(window.devicePixelRatio || 1, 1.5);

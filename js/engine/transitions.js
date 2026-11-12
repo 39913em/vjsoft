@@ -1,7 +1,12 @@
-
+/* ============================================================
+   ENGINE · transición de parámetros
+   Interpolación de estados completos (usada por la pantalla de salida).
+   ============================================================ */
 'use strict';
 
-
+/* =========================================================
+   TRANSICIÓN DE PARÁMETROS
+   ========================================================= */
 function lerpColor(a, b, t) {
   const ca = new THREE.Color(a), cb = new THREE.Color(b);
   ca.lerp(cb, t);
@@ -48,6 +53,7 @@ function lerpStates(from, to, t) {
   return r;
 }
 
+/* Convierte un snapshot de la consola (parámetros anidados en .params) a la forma plana que usa lerpStates */
 function flattenSnapshot(s) {
   const p = s.params;
   return {

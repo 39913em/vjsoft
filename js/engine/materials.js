@@ -1,7 +1,12 @@
-
+/* ============================================================
+   ENGINE · materiales por capa
+   Materiales base que heredan color/opacidad de la UI.
+   ============================================================ */
 'use strict';
 
-
+/* =========================================================
+   MATERIALES
+   ========================================================= */
 function makeMats() {
   return {
     primary: new THREE.MeshBasicMaterial({ color: 0x38bdf8, wireframe: true, transparent: true, opacity: 0.9 }),

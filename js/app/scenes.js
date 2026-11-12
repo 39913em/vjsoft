@@ -1,4 +1,9 @@
-
+/* ============================================================
+   APP · escenas
+   Guarda y recupera el aspecto completo de la consola (ambas capas).
+   Usa:      core, controls, state.js, makeSnapshot(), setActive(), syncAllControls(), refreshDeck()
+   Aporta:   initScenes(), captureScene(), applyScene()
+   ============================================================ */
 'use strict';
 
 const SCENE_STORE_KEY = 'vj.scenes';
@@ -37,7 +42,7 @@ function applyScene(sc) {
   ['A', 'B'].forEach(L => {
     const layer = L === 'A' ? core.layerA : core.layerB;
     const k = sc.active && sc.active[L];
-    if (k) setActive(layer, k);         
+    if (k) setActive(layer, k);          // si el clip ya no existe, se conserva el actual
   });
   Object.keys(sc.params || {}).forEach(k => {
     if (!state[k] || typeof state[k] !== 'object' || !sc.params[k]) return;

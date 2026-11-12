@@ -1,4 +1,10 @@
-
+/* ============================================================
+   APP · mapping (lado principal)
+   Panel de control del mapping: activar, editar en la salida, patrón, restablecer,
+   exportar/importar y persistencia en el navegador.
+   Usa:      outputWin, openOutput() (output-link.js), mappingDefaults(), mapSanitize()
+   Aporta:   initMappingLink(), sendMapping()
+   ============================================================ */
 'use strict';
 
 const MAP_STORE_KEY = 'vj.mapping';
@@ -35,7 +41,7 @@ function initMappingLink() {
   bOn.addEventListener('click', () => { mapState.data.enabled = !mapState.data.enabled; changed(); });
   bEdit.addEventListener('click', () => {
     mapState.edit = !mapState.edit;
-    if (mapState.edit && (!outputWin || outputWin.closed)) openOutput();   
+    if (mapState.edit && (!outputWin || outputWin.closed)) openOutput();   // al abrirse, 'ready' envía el estado
     changed();
   });
   bPat.addEventListener('click', () => { mapState.pattern = !mapState.pattern; changed(); });
@@ -58,7 +64,7 @@ function initMappingLink() {
 
   window.addEventListener('message', e => {
     const d = e.data; if (!d) return;
-    if (d.type === 'mapping') {                       
+    if (d.type === 'mapping') {                       // el editor de la salida cambió algo
       mapState.data = mapSanitize(d.data); mapState.edit = !!d.edit; mapState.pattern = !!d.pattern;
       saveMapping(); refreshButtons();
     } else if (d.type === 'ready') setTimeout(sendMapping, 50);

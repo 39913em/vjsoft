@@ -1,4 +1,9 @@
-
+/* ============================================================
+   APP · bucle principal
+   Avanza tiempos, aplica modulación, renderiza y envía datos en vivo a la salida.
+   Usa:      todo lo anterior
+   Aporta:   startMainLoop()
+   ============================================================ */
 'use strict';
 
 function startMainLoop() {

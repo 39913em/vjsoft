@@ -1,7 +1,14 @@
-
+/* ============================================================
+   ENGINE · cabeza 3D
+   Geometría compartida por los clips con head:true (GLTF o esfera de respaldo).
+   Usa:      HEAD_URL (config.js)
+   Aporta:   headGeometry, fallbackHeadGeometry(), loadHead(), makeGLTFLoader()
+   ============================================================ */
 'use strict';
 
-
+/* =========================================================
+   HEAD GEOMETRY
+   ========================================================= */
 let headGeometry = null;
 function fallbackHeadGeometry() {
   const g = new THREE.SphereGeometry(1, 44, 44);
@@ -17,6 +24,7 @@ function fallbackHeadGeometry() {
   return g;
 }
 
+/* Cargador de .glb compartido (con soporte Draco si la librería está disponible) */
 let _dracoLoader = null;
 function makeGLTFLoader() {
   const l = new THREE.GLTFLoader();

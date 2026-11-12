@@ -1,7 +1,12 @@
-
+/* ============================================================
+   UTILS · números aleatorios deterministas
+   Usa rng() en los clips en lugar de Math.random().
+   ============================================================ */
 'use strict';
 
-
+/* =========================================================
+   RNG determinista — usa rng() en tus clips, no Math.random()
+   ========================================================= */
 let _rngState = 1;
 function seedRng(s) { _rngState = (s >>> 0) || 1; }
 function rng() {

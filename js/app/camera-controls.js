@@ -1,4 +1,9 @@
-
+/* ============================================================
+   APP · control de cámara
+   Órbita con el ratón y zoom con botón derecho.
+   Usa:      core (app/main.js)
+   Aporta:   initCameraControls(), controls
+   ============================================================ */
 'use strict';
 
 let controls = null;

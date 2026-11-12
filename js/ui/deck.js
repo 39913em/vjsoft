@@ -1,4 +1,9 @@
-
+/* ============================================================
+   UI · deck (panel izquierdo)
+   Selector de capa A/B, parrilla de clips, carga de la cabeza 3D y estado.
+   Usa:      core (app/main.js), CLIP_DEFS, setActive(), installClip(), loadHead()
+   Aporta:   initDeck(), refreshDeck(), triggerClip(), addClipButton()
+   ============================================================ */
 'use strict';
 
 let selectedLayer = 'A';
@@ -27,7 +32,7 @@ function addClipButton(key, idx) {
     '<span class="cname">' + def.label + '</span>' +
     '<span class="ctag">' + def.tag + '</span>';
   btn.addEventListener('click', () => triggerClip(key));
-  if (def.media) {                     
+  if (def.media) {                       // clips añadidos por el usuario: se pueden quitar
     const del = document.createElement('span');
     del.className = 'del'; del.textContent = '×'; del.title = 'Quitar de la biblioteca';
     del.addEventListener('click', e => { e.stopPropagation(); mediaRemove(key); });

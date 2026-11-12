@@ -1,4 +1,9 @@
-
+/* ============================================================
+   ENGINE · capas y clips activos
+   Instala clips en cada capa y cambia el clip activo.
+   Usa:      CLIP_DEFS (clips/registry.js)
+   Aporta:   installClip(), setActive(), installStaticClips()
+   ============================================================ */
 'use strict';
 
 function installClip(core, layer, key) {

@@ -1,7 +1,13 @@
-
+/* ============================================================
+   APP · biblioteca de medios
+   Añade modelos .glb y vídeos desde el navegador (botón o arrastrando archivos a la ventana),
+   sin servidor ni Node. Se guardan en el navegador (IndexedDB) y se comparten con la salida.
+   Usa:      CLIP_DEFS, buildModelClip(), buildVideoClip(), installClip(), setActive(), addClipButton()
+   Aporta:   initMediaLibrary(), initOutputMedia(), mediaItems, mediaRemoveFromCore()
+   ============================================================ */
 'use strict';
 
-let mediaItems = [];      
+let mediaItems = [];      // { key, kind: 'model'|'video', name, url }
 
 function mediaKindOf(file) {
   if (/\.glb$/i.test(file.name)) return 'model';
@@ -10,6 +16,7 @@ function mediaKindOf(file) {
 }
 function mediaEsc(s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
 
+/* Crea la definición del clip; devuelve la clave, o null si ya existe */
 function mediaDefine(kind, name, url) {
   const key = kind + ':' + name;
   if (CLIP_DEFS[key]) return null;
@@ -31,6 +38,7 @@ function mediaRemoveFromCore(c, key) {
   delete CLIP_DEFS[key];
 }
 
+/* ── almacenamiento (IndexedDB) ── */
 function mediaDB() {
   return new Promise((res, rej) => {
     try {
@@ -50,6 +58,7 @@ function mediaDbOp(mode, fn) {
   }));
 }
 
+/* ── lado principal ── */
 function sendMedia() {
   if (outputWin && !outputWin.closed) {
     outputWin.postMessage({ type: 'media', clips: mediaItems.map(m => ({ key: m.key, kind: m.kind, name: m.name, url: m.url })) }, '*');
@@ -102,6 +111,7 @@ function initMediaLibrary() {
   }
   input.addEventListener('change', () => { addFiles(input.files); input.value = ''; });
 
+  // arrastrar y soltar en cualquier parte de la ventana
   const hint = document.getElementById('drop-hint');
   let depth = 0;
   const hasFiles = e => e.dataTransfer && Array.from(e.dataTransfer.types || []).indexOf('Files') >= 0;
@@ -114,14 +124,17 @@ function initMediaLibrary() {
     addFiles(e.dataTransfer.files);
   });
 
+  // la salida pide la lista al abrirse (se registra antes que el envío del estado)
   window.addEventListener('message', e => { if (e.data && e.data.type === 'ready') sendMedia(); });
 
+  // recuperar lo guardado en sesiones anteriores
   mediaDbOp('readonly', st => st.getAll()).then(recs => {
     (recs || []).forEach(r => mediaRegister(r));
     sendMedia();
   }).catch(() => { console.warn('[VJ] No se pudo acceder al almacenamiento del navegador; los medios no se recordarán.'); });
 }
 
+/* ── lado salida ── */
 function initOutputMedia(core) {
   window.addEventListener('message', e => {
     const d = e.data; if (!d || d.type !== 'media') return;

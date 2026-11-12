@@ -1,4 +1,9 @@
-
+/* ============================================================
+   CLIPS · helpers para construir clips
+   Malla con oclusión y animación de mandíbula, reutilizados por varios clips.
+   Usa:      THREE
+   Aporta:   wireMesh(), jawUpdate()
+   ============================================================ */
 'use strict';
 
 function wireMesh(geo, occMat, wireMat) {

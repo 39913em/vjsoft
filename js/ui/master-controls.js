@@ -1,4 +1,9 @@
-
+/* ============================================================
+   UI · mezcla y ajustes maestros (panel derecho)
+   Crossfader, opacidades, modo de mezcla, transición, BPM y ganancias.
+   Usa:      state.js
+   Aporta:   initMasterControls(), xfEl, xfVal
+   ============================================================ */
 'use strict';
 
 let xfEl = null, xfVal = null;

@@ -1,4 +1,9 @@
-
+/* ============================================================
+   APP · enlace con la pantalla de salida (lado principal)
+   Abre la ventana de salida, envía estados y recibe el retorno (monitor).
+   Usa:      core, controls, state.js
+   Aporta:   initOutputLink(), openOutput(), takeToOutput(), makeSnapshot()
+   ============================================================ */
 'use strict';
 
 let outputWin = null;

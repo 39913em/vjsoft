@@ -1,4 +1,9 @@
-
+/* ============================================================
+   APP · modo principal
+   Orquesta el arranque de la consola: motor → cámara → deck → paneles → reactividad → salida → bucle.
+   Usa:      todas las áreas
+   Aporta:   initMain()
+   ============================================================ */
 'use strict';
 
 let core = null;

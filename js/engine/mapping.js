@@ -1,15 +1,25 @@
-
+/* ============================================================
+   ENGINE · mapping de proyección
+   Deforma la imagen final para ajustarla a la estructura donde se proyecta:
+     1) ESQUINAS: 4 puntos con perspectiva real (homografía)
+     2) MALLA:    rejilla de puntos que empuja la superficie (curvas, relieves)
+     3) MÁSCARA:  polígono libre; lo de fuera queda negro (con borde suave)
+   Solo se usa en la ventana de salida.
+   Usa:      THREE, VERT/MAP_FRAG (shaders.js), makeShaderMat(), rtOpts()
+   Aporta:   MappingPass, mappingDefaults(), mapMakeWarp(), mapSanitize(), mapResampleGrid()
+   ============================================================ */
 'use strict';
 
+/* Coordenadas normalizadas de pantalla: (0,0) arriba-izquierda, (1,1) abajo-derecha */
 function mappingDefaults() {
   const cols = 4, rows = 4, grid = [];
   for (let i = 0; i < cols * rows; i++) grid.push([0, 0]);
   return {
     enabled: false,
-    corners: [[0, 0], [1, 0], [1, 1], [0, 1]],   
-    cols: cols, rows: rows, grid: grid,          
-    mask: [],                                     
-    feather: 0.004                                
+    corners: [[0, 0], [1, 0], [1, 1], [0, 1]],   // arriba-izq, arriba-der, abajo-der, abajo-izq
+    cols: cols, rows: rows, grid: grid,           // desplazamientos de la malla
+    mask: [],                                     // polígono; vacío = sin máscara
+    feather: 0.004                                // suavizado del borde (fracción del ancho)
   };
 }
 
@@ -33,6 +43,7 @@ function mapSanitize(d) {
   return out;
 }
 
+/* Desplazamiento de la malla en (u,v) por interpolación bilineal */
 function mapGridOffset(d, u, v) {
   const cols = d.cols, rows = d.rows, g = d.grid;
   const fx = u * (cols - 1), fy = v * (rows - 1);
@@ -47,7 +58,8 @@ function mapGridOffset(d, u, v) {
   ];
 }
 
-
+/* Devuelve f(u,v) → [x,y]: cuadrado unidad → cuadrilátero (perspectiva) + malla.
+   Si d.grid es null solo aplica la perspectiva. */
 function mapMakeWarp(d) {
   const c = d.corners;
   const x0 = c[0][0], y0 = c[0][1], x1 = c[1][0], y1 = c[1][1];
@@ -72,6 +84,7 @@ function mapMakeWarp(d) {
   };
 }
 
+/* Cambia la densidad de la malla conservando la forma actual */
 function mapResampleGrid(d, cols, rows) {
   const out = [];
   for (let j = 0; j < rows; j++) for (let i = 0; i < cols; i++) out.push(mapGridOffset(d, i / (cols - 1), j / (rows - 1)));

@@ -1,4 +1,9 @@
-
+/* ============================================================
+   APP · reactividad (micrófono y cámara)
+   Lee nivel de audio y movimiento para modular efectos.
+   Usa:      state.js
+   Aporta:   initReactivity(), startAudio(), readAudio(), readMotion(), audioLevel, motionLevel
+   ============================================================ */
 'use strict';
 
 let audioCtx = null, analyser = null, audioData = null, audioLevel = 0;

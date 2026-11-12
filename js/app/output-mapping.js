@@ -1,4 +1,14 @@
-
+/* ============================================================
+   APP · editor de mapping (ventana de salida)
+   Superposición para ajustar esquinas, malla y máscara arrastrando puntos.
+   Teclas (con la ventana de salida enfocada):
+     M editar/ocultar · 1 esquinas · 2 malla · 3 máscara · P patrón de prueba
+     R restablecer el modo · + / − densidad de malla · flechas ajuste fino (Mayús ×10)
+     Supr borrar punto de máscara · clic derecho: borra punto (máscara) / reinicia punto (malla)
+     H ayuda · clic en vacío (modo 3) añade un punto a la máscara
+   Usa:      core, MappingPass, mapMakeWarp(), mapResampleGrid()
+   Aporta:   initOutputMapping()
+   ============================================================ */
 'use strict';
 
 function initOutputMapping(core) {
@@ -22,6 +32,7 @@ function initOutputMapping(core) {
     if (v) { size(); draw(); }
   }
 
+  /* posiciones (0..1) de los puntos manejables del modo actual */
   function pts() {
     const d = mp.data;
     if (mode === 1) return d.corners.map(c => [c[0], c[1]]);

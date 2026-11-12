@@ -8,6 +8,28 @@ Auto VJ y pantalla de salida. Misma app de siempre, ahora repartida por áreas.
 **Doble clic en `index.html`.** Eso es todo: no hace falta instalar nada ni abrir ningún servidor.
 Necesita internet (carga three.js y la cabeza 3D de ejemplo).
 
+## Publicarlo en GitHub Pages
+
+El proyecto es estático (sin servidor), así que GitHub Pages lo aloja tal cual.
+
+1. En github.com: **New repository** (por ejemplo `vj-console`), público.
+2. Sube **el contenido** de esta carpeta, de modo que `index.html` quede en la raíz del repositorio (no dentro de otra carpeta):
+   en el repositorio pulsa **Add file → Upload files** y arrastra todo lo que hay dentro de `VJsoft` (carpetas `css`, `js`, `clips`, `tools` y los archivos sueltos).
+   Si no se sube el archivo oculto `.nojekyll`, créalo con **Add file → Create new file** (nombre `.nojekyll`, vacío). Pulsa **Commit changes**.
+   Con git, en la terminal: `git init`, `git add -A`, `git commit -m "VJ"`, `git branch -M main`,
+   `git remote add origin https://github.com/TUUSUARIO/vj-console.git`, `git push -u origin main`.
+3. **Settings → Pages → Build and deployment**: Source = *Deploy from a branch*, Branch = `main`, carpeta `/ (root)` → **Save**.
+4. En 1-2 minutos estará en `https://TUUSUARIO.github.io/vj-console/`.
+
+Notas:
+- Al ir por **https** funcionan el micrófono y la cámara, y también los vídeos y .glb de las carpetas `clips/videos` y `clips/models` (no hace falta ningún servidor).
+  Para esos, sube los archivos y la lista actualizada (`clips/videos/videos.js`, `clips/models/models.js`; se generan con `node tools/sync-clips.js` o se editan a mano).
+- GitHub admite hasta **100 MB por archivo** y conviene no pasar de ~1 GB en total. Git LFS no se sirve en Pages: comprime los vídeos.
+- Lo que añades arrastrando archivos a la consola, y tus escenas, mapping y ajustes de calidad, se guardan **en el navegador** de cada equipo, no en GitHub.
+  Para llevarlos a otro equipo usa Exportar / Importar.
+- Un repositorio privado necesita un plan de pago para usar Pages; en uno público cualquiera puede ver el código.
+- Si subes cambios y no los ves, espera un minuto y recarga con Ctrl+F5.
+
 ## Estructura
 
     index.html                 Estructura de los paneles + lista ordenada de scripts

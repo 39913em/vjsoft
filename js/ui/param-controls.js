@@ -1,6 +1,12 @@
-
+/* ============================================================
+   UI · parámetros de capa y efectos (panel derecho)
+   Genera los sliders/toggles por capa con selector de destino A / B / AB.
+   Usa:      state.js (getParam/setParam/getFx/setFx)
+   Aporta:   buildParamControls(), buildEffectControls()
+   ============================================================ */
 'use strict';
 
+/* Filas creadas (para poder refrescar la UI al cargar una escena) */
 const PARAM_ROWS = {};
 const FX_ROWS = {};
 
@@ -74,11 +80,11 @@ function buildParamControls() {
       const def = getParam(spec.key);
       input.addEventListener('input', e => {
         let v = parseFloat(e.target.value);
-        if (spec.snap && Math.abs(v) < spec.snap) { v = 0; e.target.value = 0; }   
+        if (spec.snap && Math.abs(v) < spec.snap) { v = 0; e.target.value = 0; }   // zona muerta: el 0 es el 0
         setParam(spec.key, v);
         valEl.textContent = spec.fmt(v);
       });
-      input.addEventListener('dblclick', () => {                                  
+      input.addEventListener('dblclick', () => {                                  // doble clic: valor inicial
         input.value = def; setParam(spec.key, def); valEl.textContent = spec.fmt(def);
       });
       row.appendChild(input); row._input = input; row._valEl = valEl;
@@ -165,6 +171,7 @@ function syncFxControl(spec, row) {
   row._input.value = v; row._valEl.textContent = v.toFixed(2);
 }
 
+/* Refresca todos los controles desde el estado (usado al aplicar una escena) */
 function syncAllControls() {
   PARAM_SPECS.forEach(spec => { if (PARAM_ROWS[spec.key]) syncControl(spec, PARAM_ROWS[spec.key]); });
   EFFECT_SPECS.forEach(spec => { if (FX_ROWS[spec.key]) syncFxControl(spec, FX_ROWS[spec.key]); });

@@ -1,9 +1,15 @@
-
+/* ============================================================
+   APP · calidad y rendimiento
+   Selectores de calidad (vista previa y salida) y medidor de fps.
+   Usa:      makeQuality(), core
+   Aporta:   initQualityLink(), initOutputQuality(), mainQ
+   ============================================================ */
 'use strict';
 
 let mainQ = null;
 const QUALITY_KEY = 'vj.quality';
 
+/* lado salida: recibe el modo desde la consola */
 function initOutputQuality(core) {
   const q = makeQuality(core);
   window.addEventListener('message', e => {
@@ -13,9 +19,10 @@ function initOutputQuality(core) {
   return q;
 }
 
+/* lado principal */
 function initQualityLink() {
   mainQ = makeQuality(core);
-  let prefs = { preview: '1', output: '1' };      
+  let prefs = { preview: '1', output: '1' };      // 100 % por defecto: máxima nitidez
   try { prefs = Object.assign(prefs, JSON.parse(localStorage.getItem(QUALITY_KEY)) || {}); } catch (e) {}
 
   const selP = document.getElementById('q-preview'), selO = document.getElementById('q-output');
@@ -35,6 +42,7 @@ function initQualityLink() {
     if (d.type === 'ready') setTimeout(sendQuality, 30);
     else if (d.type === 'frame' && d.fps) fpsOut.textContent = d.fps + ' fps · ' + Math.round(d.scale * 100) + '%';
   });
+  // efecto cristal (desenfoque tras los paneles): apagado por defecto porque cuesta muchos fps
   const chkGlass = document.getElementById('chk-glass');
   let glass = false; try { glass = localStorage.getItem('vj.glass') === '1'; } catch (e) {}
   chkGlass.checked = glass; document.body.classList.toggle('glass', glass);
