@@ -67,6 +67,12 @@
 
 <!-- ═══ PANEL DERECHO · MASTER (mezcla, parámetros, efectos, reactividad, auto) ═══ -->
 <aside id="master">
+  <div class="row2">
+    <button id="btn-panic" class="panic-btn" title="Esc">PANIC (Esc)</button>
+    <button id="btn-help" class="mini" title="H">Atajos (H)</button>
+  </div>
+  <div class="note">PANIC: crossfader al centro, efectos a 0 y silenciados, giros a 0, opacidades al máximo y Auto VJ apagado. No toca tus escenas ni tus clips.</div>
+
   <div class="section-title">Mezcla</div>
   <div class="row2">
     <div class="param-row">
@@ -96,11 +102,17 @@
 
   <div class="section-title">Parámetros de capa</div>
   <div id="param-controls"></div>
-  <button id="btn-rot-reset" class="mini">Reiniciar giro</button>
+  <div class="row2">
+    <button id="btn-rot-reset" class="mini">Reiniciar giro</button>
+    <button id="btn-pos-reset" class="mini">Reiniciar posición</button>
+  </div>
+  <div class="note">Mover el objeto: mantén <b>Alt</b> y arrastra (izq. = X/Y, der. = Z o rueda). <b>Shift+Alt</b> mueve las dos capas. También con flechas, PgUp/PgDn (ver Atajos).</div>
   <div class="note">Giro: el signo invierte el sentido. X: + arriba→abajo, − abajo→arriba · Y: + izquierda→derecha, − derecha→izquierda · Z: + antihorario, − horario. Requiere "Giro automático". Doble clic en un slider lo devuelve a su valor inicial.</div>
 
   <div class="section-title">Efectos</div>
-  <div id="effect-controls"></div>
+  <button id="btn-fx-off" class="mini">Silenciar todos los efectos</button>
+  <div class="note">El botón ON/OFF de cada efecto lo silencia aunque el slider esté alto o reaccione al audio/movimiento. Atajo: F y luego el número del efecto; Shift+F silencia todos.</div>
+  <div id="effect-controls" style="margin-top:8px"></div>
 
   <div class="section-title">Reactividad</div>
   <div class="row2">
@@ -219,6 +231,8 @@
 <script src="js/app/auto-vj.js"></script>
 <script src="js/app/output-link.js"></script>
 <script src="js/app/rotation-tools.js"></script>
+<script src="js/app/object-move.js"></script>
+<script src="js/app/shortcuts.js"></script>
 <script src="js/app/scenes.js"></script>
 <script src="js/app/mapping-link.js"></script>
 <script src="js/app/quality-link.js"></script>

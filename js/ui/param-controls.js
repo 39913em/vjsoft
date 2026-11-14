@@ -124,12 +124,39 @@ const EFFECT_SPECS = [
   { key: 'grain',      label: 'Grano' }
 ];
 
+/* Atajo de teclado de cada efecto (modo FX: F y luego la tecla): 1-9, 0, Shift+1…5 */
+function fxKeyLabel(i) { return i < 9 ? String(i + 1) : i === 9 ? '0' : '⇧' + (i - 9); }
+
+/* Silenciar un efecto: vale 0 aunque el slider esté alto o reaccione a audio/movimiento/Auto VJ */
+function refreshFxMuteUI() {
+  Object.keys(FX_ROWS).forEach(k => {
+    const row = FX_ROWS[k], muted = !!(state.fxMuteAll || state.fxMute[k]);
+    row.classList.toggle('fx-muted', muted);
+    row._kill.classList.toggle('on', muted);
+    row._kill.textContent = muted ? 'OFF' : 'ON';
+  });
+  const all = document.getElementById('btn-fx-off');
+  if (all) {
+    all.classList.toggle('danger-on', state.fxMuteAll);
+    all.textContent = state.fxMuteAll ? 'Efectos silenciados — pulsa para reactivar' : 'Silenciar todos los efectos';
+  }
+}
+function toggleFxMute(key) { state.fxMute[key] = !state.fxMute[key]; refreshFxMuteUI(); return !!state.fxMute[key]; }
+function setFxMuteAll(v) { state.fxMuteAll = !!v; refreshFxMuteUI(); }
+
 function buildEffectControls() {
   const container = document.getElementById('effect-controls');
-  EFFECT_SPECS.forEach(spec => {
+  EFFECT_SPECS.forEach((spec, idx) => {
     const row = document.createElement('div'); row.className = 'param-row';
     const head = document.createElement('div'); head.className = 'param-head';
-    const label = document.createElement('span'); label.className = 'param-label'; label.textContent = spec.label;
+    const kill = document.createElement('button'); kill.className = 'fx-kill'; kill.textContent = 'ON';
+    kill.title = 'Silenciar / activar este efecto (no responde a audio, movimiento ni Auto VJ) · atajo: F y luego ' + fxKeyLabel(idx);
+    kill.addEventListener('click', () => toggleFxMute(spec.key));
+    head.appendChild(kill);
+    const label = document.createElement('span'); label.className = 'param-label';
+    label.textContent = spec.label;
+    const kb = document.createElement('span'); kb.className = 'fx-key'; kb.textContent = fxKeyLabel(idx);
+    label.appendChild(kb);
     head.appendChild(label);
 
     const tg = document.createElement('div'); tg.className = 'target-group';
@@ -160,10 +187,11 @@ function buildEffectControls() {
       val.textContent = v.toFixed(2);
     });
     input.addEventListener('dblclick', () => { input.value = 0; setFx(spec.key, 0); val.textContent = (0).toFixed(2); });
-    row.appendChild(input); row._input = input; row._valEl = val;
+    row.appendChild(input); row._input = input; row._valEl = val; row._kill = kill;
     FX_ROWS[spec.key] = row;
     container.appendChild(row);
   });
+  refreshFxMuteUI();
 }
 
 function syncFxControl(spec, row) {

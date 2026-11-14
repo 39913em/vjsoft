@@ -10,8 +10,10 @@
    CORE
    ========================================================= */
 function buildCore(container) {
-  const renderer = new THREE.WebGLRenderer({ antialias: false, preserveDrawingBuffer: IS_OUTPUT && !!window.VJ_KEEP_BUFFER });
-  const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+  const renderer = new THREE.WebGLRenderer({ antialias: false, powerPreference: 'high-performance',
+                                             preserveDrawingBuffer: IS_OUTPUT && !!window.VJ_KEEP_BUFFER });
+  const dpr = Math.min(window.devicePixelRatio || 1, IS_OUTPUT ? MAX_DPR_OUTPUT : MAX_DPR_PREVIEW);
+  window.VJ_MAX_ANISO = renderer.capabilities.getMaxAnisotropy();   // lo usan los clips .glb (vjTuneTexture)
   renderer.setPixelRatio(dpr);
   renderer.setSize(window.innerWidth, window.innerHeight);
   container.appendChild(renderer.domElement);

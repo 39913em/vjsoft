@@ -52,12 +52,23 @@ function buildVideoClip(src, mats) {
     lastSeen = performance.now();
     if (!frozen && video.paused) { const pr = video.play(); if (pr && pr.catch) pr.catch(() => {}); }
   };
-  setInterval(() => {
+  const watchdog = setInterval(() => {
     if (!video.paused && performance.now() - lastSeen > 1500) video.pause();
   }, 500);
 
+  /* libera el decodificador, la textura y el temporizador (al quitar el vídeo de la biblioteca) */
+  let dead = false;
+  function dispose() {
+    dead = true;
+    clearInterval(watchdog);
+    mesh.onBeforeRender = () => {};
+    video.pause(); video.removeAttribute('src'); video.load();
+    tex.dispose(); planeMat.dispose(); mesh.geometry.dispose();
+  }
+
   let lastTime = null, lastUpd = 0, rateSm = 1;
-  return { group, update(t, dt, p) {
+  return { group, dispose, update(t, dt, p) {
+    if (dead) return;
     const now = performance.now();
     planeMat.opacity = mats.primary.opacity;
 

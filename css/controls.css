@@ -48,3 +48,38 @@ select {
 
 .chk { display: flex; align-items: center; gap: 7px; font-size: 10px; color: #a1a1aa; margin: 6px 0 2px; cursor: pointer; }
 .chk input { accent-color: #38bdf8; }
+
+/* ---- silenciar efectos · PANIC · atajos · mover objeto ---- */
+.fx-kill { background: #0e7490; border: 1px solid #22d3ee; color: #fff; font-size: 8px; font-weight: 800;
+  padding: 1px 5px; border-radius: 3px; cursor: pointer; font-family: inherit; min-width: 28px; letter-spacing: .4px; }
+.fx-kill.on { background: #7f1d1d; border-color: #f87171; color: #fecaca; }
+.param-row.fx-muted .param-label, .param-row.fx-muted input[type=range], .param-row.fx-muted .param-val { opacity: .4; }
+.fx-key { margin-left: 5px; font-size: 8px; color: #52525b; border: 1px solid #3f3f46; border-radius: 3px; padding: 0 3px; }
+.mini.danger-on { background: #7f1d1d; border-color: #f87171; color: #fecaca; }
+
+.panic-btn { background: #b91c1c; border: 1px solid #f87171; color: #fff; border-radius: 5px; padding: 7px 8px;
+  font-size: 10px; font-weight: 800; cursor: pointer; font-family: inherit; letter-spacing: .8px; width: 100%; }
+.panic-btn:hover { background: #dc2626; }
+
+body.alt-move #view, body.alt-move #view canvas { cursor: move !important; }
+
+#vj-toast { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); z-index: 9999; pointer-events: none;
+  background: rgba(10,10,15,.92); color: #e4e4e7; border: 1px solid #3f3f46; border-radius: 6px; padding: 7px 14px;
+  font-size: 11px; letter-spacing: .3px; opacity: 0; transition: opacity .18s; max-width: 80vw; text-align: center; }
+#vj-toast.show { opacity: 1; }
+#vj-toast.warn { border-color: #f87171; color: #fecaca; }
+
+#help-overlay { position: fixed; inset: 0; z-index: 9998; background: rgba(0,0,0,.72); display: none;
+  align-items: center; justify-content: center; }
+#help-overlay.show { display: flex; }
+#help-box { background: #0c0c10; border: 1px solid #27272a; border-radius: 10px; padding: 18px 22px; max-width: 760px;
+  max-height: 86vh; overflow: auto; color: #d4d4d8; font-size: 11.5px; line-height: 1.55; }
+#help-box h3 { margin: 0 0 8px; font-size: 12px; letter-spacing: 2px; color: #22d3ee; text-transform: uppercase; }
+#help-box h4 { margin: 12px 0 4px; font-size: 9.5px; letter-spacing: 1.6px; color: #71717a; text-transform: uppercase; }
+#help-box .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 0 28px; }
+#help-box .k { display: flex; gap: 8px; padding: 1px 0; }
+#help-box kbd { background: #18181b; border: 1px solid #3f3f46; border-radius: 4px; padding: 0 5px; font-size: 10px;
+  color: #e4e4e7; min-width: 18px; text-align: center; font-family: inherit; white-space: nowrap; }
+#help-box .k span { flex: 1; }
+#help-box .foot { margin-top: 12px; color: #52525b; font-size: 10px; }
+

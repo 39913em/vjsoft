@@ -24,6 +24,8 @@ function initOutput() {
 
   let outState = null;
   let outAudio = 0, outMotion = 0, outAuto = null, outRates = null;
+  let outPosTarget = null, outFxMute = {};
+  const outPos = { A: { x: 0, y: 0, z: 0 }, B: { x: 0, y: 0, z: 0 } };   // posición suavizada que se dibuja
   let outLastT = performance.now();
   let lastFrameSend = 0;
   let transition = { active: false, start: 0, duration: 600, from: null, to: null };
@@ -102,6 +104,8 @@ function initOutput() {
         if (d.rates) outRates = d.rates;
       }
       outAuto = d.auto || null;
+      if (d.pos) outPosTarget = d.pos;
+      if (d.fxMute) outFxMute = d.fxMute;
     }
   });
 
@@ -150,6 +154,17 @@ function initOutput() {
       }
 
       eff._audio = outAudio; eff._motion = outMotion;
+      eff.fxMute = outFxMute;
+
+      // posición del objeto en vivo (se acerca suavemente al valor de la consola)
+      if (outPosTarget) {
+        const k = 1 - Math.pow(0.7, dt);
+        ['A', 'B'].forEach(L => ['x', 'y', 'z'].forEach(c => {
+          const tgt = outPosTarget[L][c], cur = outPos[L][c];
+          outPos[L][c] = Math.abs(tgt - cur) < 0.0005 ? tgt : cur + (tgt - cur) * k;
+        }));
+      }
+      eff.pos = outPos;
 
       // velocidades en vivo de la consola (para que girar/parar se note al instante en la salida)
       if (outRates) {

@@ -53,21 +53,25 @@ function renderLayerWithFX(core, layer, which, eff, now) {
   fxU.uPrev.value = fxFeed.texture;
   fxU.uTime.value = now * 0.001;
   fxU.uResolution.value.set(core.W, core.H);
-  fxU.uRepetition.value = clamp01(e.repetition[d] + eff._motion * eff.videoGain * 0.2);
-  fxU.uTunnel.value     = clamp01(e.tunnel[d] + eff._motion * eff.videoGain * 0.3 + eff._audio * eff.audioGain * 0.15);
-  fxU.uGlitch.value     = clamp01(e.glitch[d] + eff._motion * eff.videoGain * 0.4 + eff._audio * eff.audioGain * 0.3);
-  fxU.uAberration.value = clamp01(e.aberration[d] + eff._motion * eff.videoGain * 0.2 + eff._audio * eff.audioGain * 0.2);
-  fxU.uBorders.value    = clamp01(e.borders[d]);
-  fxU.uFluids.value     = clamp01(e.fluids[d]);
-  fxU.uFractal.value    = clamp01(e.fractal[d] + eff._audio * eff.audioGain * 0.2);
-  fxU.uPixelate.value   = clamp01(e.pixelate[d]);
-  fxU.uMirror.value     = clamp01(e.mirror[d]);
-  fxU.uZoom.value       = clamp01(e.zoom[d] + eff._audio * eff.audioGain * 0.3);
-  fxU.uPosterize.value  = clamp01(e.posterize[d]);
-  fxU.uScan.value       = clamp01(e.scan[d]);
-  fxU.uInvert.value     = clamp01(e.invert[d]);
-  fxU.uVignette.value   = clamp01(e.vignette[d]);
-  fxU.uGrain.value      = clamp01(e.grain[d] + eff._audio * eff.audioGain * 0.15);
+  // Un efecto silenciado vale 0 pase lo que pase (slider, audio, movimiento o Auto VJ)
+  const mute = eff.fxMute || {};
+  const fx = (k, extra) => mute[k] ? 0 : clamp01(e[k][d] + (extra || 0));
+  const mo = eff._motion * eff.videoGain, au = eff._audio * eff.audioGain;
+  fxU.uRepetition.value = fx('repetition', mo * 0.2);
+  fxU.uTunnel.value     = fx('tunnel',     mo * 0.3 + au * 0.15);
+  fxU.uGlitch.value     = fx('glitch',     mo * 0.4 + au * 0.3);
+  fxU.uAberration.value = fx('aberration', mo * 0.2 + au * 0.2);
+  fxU.uBorders.value    = fx('borders');
+  fxU.uFluids.value     = fx('fluids');
+  fxU.uFractal.value    = fx('fractal',    au * 0.2);
+  fxU.uPixelate.value   = fx('pixelate');
+  fxU.uMirror.value     = fx('mirror');
+  fxU.uZoom.value       = fx('zoom',       au * 0.3);
+  fxU.uPosterize.value  = fx('posterize');
+  fxU.uScan.value       = fx('scan');
+  fxU.uInvert.value     = fx('invert');
+  fxU.uVignette.value   = fx('vignette');
+  fxU.uGrain.value      = fx('grain',      au * 0.15);
 
   // Con todos los efectos a 0 el shader es la identidad: se salta la pasada y se usa la imagen tal cual
   const anyFx = window.VJ_FORCE_FX || [fxU.uRepetition, fxU.uTunnel, fxU.uGlitch, fxU.uAberration, fxU.uBorders,
@@ -105,6 +109,10 @@ function renderFrame(core, eff, dt, now) {
 
   core.layerA.root.scale.setScalar(eff.scale.A);
   core.layerB.root.scale.setScalar(eff.scale.B);
+  if (eff.pos) {                                   // desplazamiento manual del objeto (Alt + ratón / flechas)
+    core.layerA.root.position.set(eff.pos.A.x, eff.pos.A.y, eff.pos.A.z);
+    core.layerB.root.position.set(eff.pos.B.x, eff.pos.B.y, eff.pos.B.z);
+  }
 
   if (showA) renderLayerWithFX(core, core.layerA, 'A', eff, now);
   if (showB) renderLayerWithFX(core, core.layerB, 'B', eff, now);

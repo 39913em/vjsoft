@@ -28,6 +28,8 @@ function initMain() {
   initMappingLink();
   initScenes();
   initRotationTools();
+  initObjectMove();
+  initShortcuts();
   startMainLoop();
 
   refreshDeck();

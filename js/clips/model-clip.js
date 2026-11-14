@@ -30,6 +30,7 @@ function buildModelClip(src, mats) {
   let geo = null, orig = null, ready = false;       // ruta estática (deformación)
   let flat = false, defTick = 0;
   let mixer = null, action = null, wireM = null, lastT = null;   // ruta animada
+  let disposed = false, ownMats = [];              // ownMats: materiales propios que ya no cuelgan de ninguna malla
 
   // modo con textura: materiales originales + luces propias (solo visibles en ese modo)
   let texOn = false, texList = [], setTextured = () => {};
@@ -50,6 +51,9 @@ function buildModelClip(src, mats) {
     root.traverse(c => { if (c.isMesh) [].concat(c.material).forEach(m => set.add(m)); });
     set.forEach(m => {
       ['map', 'emissiveMap'].forEach(k => { if (m[k]) { m[k].encoding = THREE.LinearEncoding; m[k].needsUpdate = true; } });
+      // calidad: anisotropía máxima + mipmaps trilineales en todas las texturas del material
+      ['map', 'emissiveMap', 'normalMap', 'roughnessMap', 'metalnessMap', 'aoMap', 'alphaMap', 'bumpMap', 'lightMap']
+        .forEach(k => vjTuneTexture(m[k]));
       if (m.metalness > 0.2) m.metalness = 0.2;
       m.userData.vjT = m.transparent;
       // recoloreado: conserva la luminosidad (detalle/sombras) de la textura y la tiñe del color elegido
@@ -136,6 +140,7 @@ function buildModelClip(src, mats) {
     wireM = mats.primary.clone();
     const occM = mats.occ.clone();
     [wireM, occM].forEach(m => { m.skinning = hasSkin; m.morphTargets = hasMorph; });
+    ownMats.push(wireM, occM, ...texList);
     occM.polygonOffset = true; occM.polygonOffsetFactor = 1; occM.polygonOffsetUnits = 1;
 
     const meshes = [], occs = [];
@@ -166,6 +171,7 @@ function buildModelClip(src, mats) {
   }
 
   makeGLTFLoader().load(src, gltf => {
+    if (disposed) { vjDisposeObject(gltf.scene, mats); return; }   // se quitó el clip mientras cargaba
     gltf.scene.updateMatrixWorld(true);
     let hasMesh = false, hasSkin = false, hasMorph = false;
     gltf.scene.traverse(c => {
@@ -180,7 +186,15 @@ function buildModelClip(src, mats) {
     group.traverse(o => { o.frustumCulled = false; });   // los hijos se añaden tras la instalación
   }, undefined, err => console.warn('[VJ] No se pudo cargar ' + src + ' (¿falta el archivo o está dañado?)', err));
 
-  return { group, update(t, dt, p) {
+  /* libera geometrías, materiales, texturas, esqueleto y animación (al quitar el .glb de la biblioteca) */
+  function dispose() {
+    disposed = true; ready = false;
+    if (mixer) { mixer.stopAllAction(); mixer.uncacheRoot(mixer.getRoot()); mixer = null; }
+    vjDisposeObject(group, mats, texList.concat(ownMats));
+    texList = []; ownMats = []; geo = orig = wireM = null; setTextured = () => {};
+  }
+
+  return { group, dispose, update(t, dt, p) {
     group.scale.setScalar(p.pulsing ? 1 + Math.sin(t * 3) * 0.05 : 1);
     if (!ready) return;
     const want = !!p.textured;

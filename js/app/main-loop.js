@@ -42,7 +42,8 @@ function startMainLoop() {
       effects: autoOn ? autoMod.effects : state.effects, crossfade: autoOn ? autoMod.crossfade : state.crossfade, blend: state.blend,
       opA: state.opA, opB: state.opB, bpm: state.bpm,
       audioGain: state.audioGain, videoGain: state.videoGain,
-      autoRotate: state.autoRotate, _audio: audioLevel, _motion: motionLevel
+      autoRotate: state.autoRotate, _audio: audioLevel, _motion: motionLevel,
+      pos: state.pos, fxMute: fxMuteMap()
     };
 
     renderFrame(core, eff, dt, now);
@@ -58,6 +59,7 @@ function startMainLoop() {
         rotZA: core.layerA.root.rotation.z, rotZB: core.layerB.root.rotation.z,
         rates: { speed: state.speed, rotSpeed: state.rotSpeed, rotX: state.rotX, rotZ: state.rotZ,
                  bpm: state.bpm, autoRotate: state.autoRotate },
+        pos: state.pos, fxMute: fxMuteMap(),
         auto: autoOn ? {
           crossfade: autoMod.crossfade,
           deform: { A: autoMod.deform.A, B: autoMod.deform.B },

@@ -148,3 +148,11 @@ el piloto sigue desde esa posición.
 - La pantalla de salida transiciona los parámetros (color, giros, efectos…) durante la "Duración transición".
 - Un vídeo es un plano dentro de la capa: con "Giro automático" activo gira como el Betta. Ponlo en OFF o
   Giro = 0 para verlo plano.
+
+## Mover el objeto, atajos y silenciar efectos
+
+- **Mover el objeto:** mantén **Alt** y arrastra con el botón izquierdo (X/Y) o derecho / rueda (Z). **Shift+Alt** mueve las dos capas. Los ejes siguen a la cámara. La posición se guarda en las escenas y se ve en vivo en la salida. "Reiniciar posición" (o `R`) la devuelve al origen.
+- **Efectos:** cada efecto tiene un botón **ON/OFF** que lo deja en 0 aunque el slider esté alto o reaccione a audio, movimiento o Auto VJ (el slider conserva su valor). "Silenciar todos los efectos" (o `Shift+F`) hace lo mismo con todos.
+- **PANIC** (`Esc`): crossfader al centro, efectos a 0 y silenciados, giros a 0, opacidades al máximo y Auto VJ apagado. No borra escenas ni clips. Para recuperar los efectos: `Shift+F`.
+- **Atajos:** pulsa `H` para ver la lista completa (capas A/B, clips 1–0, flechas para mover, crossfader Z/X/C, espacio = enviar a salida, `F` + número = silenciar un efecto…).
+

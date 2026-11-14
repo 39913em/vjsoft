@@ -27,7 +27,8 @@ function captureScene(name) {
     active: s.active, params: s.params, effects: s.effects,
     crossfade: s.crossfade, blend: s.blend, opA: s.opA, opB: s.opB,
     autoRotate: s.autoRotate, bpm: s.bpm, audioGain: s.audioGain, videoGain: s.videoGain,
-    transitionDur: state.transitionDur, cam: s.cam
+    transitionDur: state.transitionDur, cam: s.cam,
+    pos: JSON.parse(JSON.stringify(state.pos))
   };
 }
 
@@ -51,6 +52,9 @@ function applyScene(sc) {
   Object.keys(sc.effects || {}).forEach(k => {
     if (!state.effects[k]) return;
     ['A', 'B'].forEach(L => { if (sc.effects[k][L] !== undefined) state.effects[k][L] = sc.effects[k][L]; });
+  });
+  if (sc.pos) ['A', 'B'].forEach(L => {          // escenas antiguas sin posición: se deja la actual
+    if (sc.pos[L]) ['x', 'y', 'z'].forEach(c => { if (typeof sc.pos[L][c] === 'number') state.pos[L][c] = sc.pos[L][c]; });
   });
   setUI('crossfade', sc.crossfade, 'input');
   setUI('opA', sc.opA, 'input');

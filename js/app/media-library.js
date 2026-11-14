@@ -33,7 +33,7 @@ function mediaRemoveFromCore(c, key) {
     if (l.active === key) setActive(l, l === c.layerA ? 'monolith' : 'fondo');
     if (l.prevActive === key) l.prevActive = null;
     const cl = l.clips[key];
-    if (cl) { l.root.remove(cl.group); delete l.clips[key]; }
+    if (cl) { l.root.remove(cl.group); if (cl.dispose) cl.dispose(); delete l.clips[key]; }
   });
   delete CLIP_DEFS[key];
 }

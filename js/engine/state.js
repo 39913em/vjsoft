@@ -36,10 +36,19 @@ const state = {
     borders: 'AB', fluids: 'AB', fractal: 'AB',
     pixelate: 'AB', mirror: 'AB', zoom: 'AB', posterize: 'AB', scan: 'AB', invert: 'AB', vignette: 'AB', grain: 'AB'
   },
+  pos:       { A: { x: 0, y: 0, z: 0 }, B: { x: 0, y: 0, z: 0 } },   // desplazamiento del objeto de cada capa (Alt + ratón)
+  fxMute: {}, fxMuteAll: false,                  // efectos silenciados (ignoran slider, audio, movimiento y Auto VJ)
   crossfade: 0, blend: 'screen', opA: 1, opB: 1, autoRotate: true,
   bpm: 120, audioGain: 1, videoGain: 1, audioOn: false, videoOn: false,
   auto: false, transitionDur: 600
 };
+
+/* mapa efecto → silenciado (se envía a la salida y se aplica en render.js) */
+function fxMuteMap() {
+  const m = {};
+  Object.keys(state.effects).forEach(k => { m[k] = !!(state.fxMuteAll || state.fxMute[k]); });
+  return m;
+}
 
 function getParam(key) { const t = state.target[key]; return t === 'B' ? state[key].B : state[key].A; }
 function setParam(key, val) {
